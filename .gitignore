@@ -67,6 +67,8 @@ data/processed/chunks/
 data/processed/embeddings/
 data/processed/bm25_index/
 data/processed/qdrant_storage/
+data/backup_*
 !data/knowledge_base/.gitkeep
 !data/processed/.gitkeep
+
 
