@@ -19,6 +19,33 @@ async function handleResponse(res) {
 }
 
 export const api = {
+  // Dietitian Authentication
+  async login(credentials) {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+    return handleResponse(res);
+  },
+
+  async verifyAuth(token) {
+    const res = await fetch(`${API_BASE}/auth/verify`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return handleResponse(res);
+  },
+
+  async logout() {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+    } catch {
+      // Ignore network errors on logout
+    }
+  },
+
   // Patients
   async getPatients(search = '') {
     const query = search ? `?search=${encodeURIComponent(search)}` : '';

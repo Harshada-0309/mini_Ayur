@@ -22,6 +22,12 @@ const config = {
   frontend: {
     url: process.env.FRONTEND_URL || 'http://localhost:5173',
   },
+  auth: {
+    dietitianUsername: process.env.DIETITIAN_USERNAME || 'dietitian',
+    dietitianEmail: process.env.DIETITIAN_EMAIL || 'dietitian@ayurdiet.com',
+    dietitianPassword: process.env.DIETITIAN_PASSWORD || 'Dietitian@123',
+    jwtSecret: process.env.AUTH_SECRET || 'ayurdiet-secure-dietitian-secret-2026',
+  },
 };
 
 module.exports = config;

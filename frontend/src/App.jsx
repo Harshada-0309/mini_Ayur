@@ -5,6 +5,7 @@ import NewPatientModal from './components/NewPatientModal';
 import AssessmentForm from './components/AssessmentForm';
 import ClinicalLabModal from './components/ClinicalLabModal';
 import RAGKnowledgeViewer from './components/RAGKnowledgeViewer';
+import DietitianLogin from './components/DietitianLogin';
 import { api } from './services/api';
 
 export default function App() {
@@ -19,6 +20,35 @@ export default function App() {
   const [loadingPatients, setLoadingPatients] = useState(false);
   const [loadingAssessment, setLoadingAssessment] = useState(false);
   const activePatientIdRef = useRef(null);
+
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!(sessionStorage.getItem('ayurdiet_dietitian_token') || localStorage.getItem('ayurdiet_dietitian_token'));
+  });
+
+  const handleLoginSuccess = (authData) => {
+    if (authData?.token) {
+      sessionStorage.setItem('ayurdiet_dietitian_token', authData.token);
+      if (authData.dietitian) {
+        sessionStorage.setItem('ayurdiet_dietitian_user', JSON.stringify(authData.dietitian));
+      }
+    }
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('ayurdiet_dietitian_token');
+    sessionStorage.removeItem('ayurdiet_dietitian_user');
+    localStorage.removeItem('ayurdiet_dietitian_token');
+    localStorage.removeItem('ayurdiet_dietitian_user');
+    api.logout().catch(() => {});
+    setIsAuthenticated(false);
+    setActivePatient(null);
+    setActiveAssessment(null);
+    setLabRecords([]);
+    setSavedMealPlan(null);
+    setSavedDietPlan(null);
+  };
 
   // Modals state
   const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
@@ -60,8 +90,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadPatients(searchQuery);
-  }, [searchQuery]);
+    if (isAuthenticated) {
+      loadPatients(searchQuery);
+    }
+  }, [searchQuery, isAuthenticated]);
 
   // Select patient and load latest assessment, lab records, and saved plans independently
   const handleSelectPatient = async (patient) => {
@@ -213,12 +245,17 @@ export default function App() {
     }
   };
 
+  if (!isAuthenticated) {
+    return <DietitianLogin onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="app-container">
       <Header
         activePatient={activePatient}
         currentWorkspace={currentWorkspace}
         onWorkspaceChange={setCurrentWorkspace}
+        onLogout={handleLogout}
       />
 
       <div className="workspace-layout">

@@ -2030,5 +2030,233 @@ h1, h2, h3, h4, h5, h6 {
   font-family: monospace;
 }
 
+/* ====================================================================
+   Dietitian Login Screen Styles
+   ==================================================================== */
+.dietitian-login-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: radial-gradient(circle at 80% 20%, #e2efe9 0%, var(--bg-app) 70%);
+}
+
+.dietitian-login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2.25rem 2rem;
+  animation: fadeInLogin 0.3s ease-out;
+}
+
+@keyframes fadeInLogin {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dietitian-login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.dietitian-login-header .brand-logo-mark {
+  margin-bottom: 0.6rem;
+  width: 42px;
+  height: 42px;
+  font-size: 1.45rem;
+}
+
+.dietitian-login-title {
+  font-size: 1.6rem;
+  color: var(--primary-dark);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dietitian-login-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-gold);
+  margin-top: 0.2rem;
+}
+
+.dietitian-login-intro {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.dietitian-login-intro h2 {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.dietitian-login-intro p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.login-alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background-color: var(--status-critical-bg);
+  border: 1px solid #fecaca;
+  color: var(--status-critical);
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  margin-bottom: 1.25rem;
+}
+
+.login-alert-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.dietitian-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.input-error {
+  border-color: #e11d48 !important;
+  background-color: #fff1f2 !important;
+}
+
+.form-error-msg {
+  font-size: 0.76rem;
+  color: #e11d48;
+  font-weight: 500;
+  margin-top: 0.15rem;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .form-input {
+  padding-right: 3.5rem;
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.btn-toggle-password:hover {
+  color: var(--primary);
+}
+
+.btn-login-submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  cursor: pointer;
+}
+
+.login-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spinLogin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spinLogin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dietitian-credentials-hint {
+  margin-top: 1.5rem;
+  padding: 0.85rem 1rem;
+  background-color: var(--primary-subtle);
+  border: 1px dashed rgba(47, 177, 135, 0.45);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  color: var(--primary-dark);
+}
+
+.hint-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+  color: var(--primary);
+}
+
+.hint-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: var(--text-secondary);
+}
+
+.hint-content strong {
+  color: var(--primary-dark);
+}
+
+/* Header Logout Button */
+.header-logout-btn {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.28rem 0.65rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.header-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+
 
 
