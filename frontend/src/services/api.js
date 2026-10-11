@@ -18,6 +18,18 @@ async function handleResponse(res) {
   return data;
 }
 
+function getAuthHeaders() {
+  try {
+    const token =
+      (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ayurdiet_dietitian_token')) ||
+      (typeof localStorage !== 'undefined' && localStorage.getItem('ayurdiet_dietitian_token')) ||
+      null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
+
 export const api = {
   // Dietitian Authentication
   async login(credentials) {
@@ -25,6 +37,15 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
+    });
+    return handleResponse(res);
+  },
+
+  async signup(payload) {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
     return handleResponse(res);
   },
@@ -49,7 +70,11 @@ export const api = {
   // Patients
   async getPatients(search = '') {
     const query = search ? `?search=${encodeURIComponent(search)}` : '';
-    const res = await fetch(`${API_BASE}/patients${query}`);
+    const res = await fetch(`${API_BASE}/patients${query}`, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
     return handleResponse(res);
   },
 
@@ -61,7 +86,10 @@ export const api = {
   async createPatient(payload) {
     const res = await fetch(`${API_BASE}/patients`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
       body: JSON.stringify(payload),
     });
     return handleResponse(res);

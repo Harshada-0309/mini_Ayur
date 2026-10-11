@@ -1,4 +1,14 @@
 const patientRepository = require('../repositories/patientRepository');
+const authController = require('./authController');
+
+function getDietitianId(req) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    const token = req.headers.authorization.split(' ')[1];
+    const payload = authController.verifyToken(token);
+    if (payload && payload.id) return payload.id;
+  }
+  return req.headers['x-dietitian-id'] || req.query.dietitianId || null;
+}
 
 /**
  * Controller for Dietitian Patient Management
@@ -7,8 +17,10 @@ const patientRepository = require('../repositories/patientRepository');
 const getPatients = async (req, res, next) => {
   try {
     const { search, limit = 50, offset = 0 } = req.query;
+    const dietitianId = getDietitianId(req);
     const patients = await patientRepository.findAll({
       search,
+      dietitianId,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
     });
@@ -59,6 +71,8 @@ const createPatient = async (req, res, next) => {
       }
     }
 
+    const dietitianId = getDietitianId(req) || 'dietitian-primary';
+
     const patient = await patientRepository.create({
       name: name.trim(),
       age: parseInt(age, 10),
@@ -67,6 +81,7 @@ const createPatient = async (req, res, next) => {
       phone: phone ? phone.trim() : '',
       email: email ? email.trim() : '',
       patient_code: patient_code ? patient_code.trim() : undefined,
+      dietitian_id: dietitianId,
     });
 
     return res.status(201).json({
