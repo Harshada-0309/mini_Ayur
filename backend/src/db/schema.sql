@@ -2,6 +2,29 @@
 -- AyurDiet Database Schema - Phase 2: Dietitian Patient Assessment
 -- ====================================================================
 
+-- 0. Dietitians Table (Practitioner Authentication & Profiles)
+CREATE TABLE IF NOT EXISTS dietitians (
+  id SERIAL PRIMARY KEY,
+  dietitian_code VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(60) DEFAULT 'Chief Clinical Dietitian',
+  clinic_name VARCHAR(150) DEFAULT 'AyurDiet Integrative Health Clinic',
+  phone VARCHAR(50),
+  qualifications VARCHAR(255),
+  photo_url TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE dietitians ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+ALTER TABLE dietitians ADD COLUMN IF NOT EXISTS qualifications VARCHAR(255);
+ALTER TABLE dietitians ADD COLUMN IF NOT EXISTS photo_url TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_dietitians_email ON dietitians(email);
+
 -- 1. Patients Table
 CREATE TABLE IF NOT EXISTS patients (
   id SERIAL PRIMARY KEY,
@@ -12,12 +35,18 @@ CREATE TABLE IF NOT EXISTS patients (
   occupation VARCHAR(150),
   phone VARCHAR(50),
   email VARCHAR(150),
+  photo_url TEXT,
+  dietitian_id INTEGER REFERENCES dietitians(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS dietitian_id INTEGER REFERENCES dietitians(id) ON DELETE SET NULL;
+
 CREATE INDEX IF NOT EXISTS idx_patients_patient_code ON patients(patient_code);
 CREATE INDEX IF NOT EXISTS idx_patients_name ON patients(name);
+CREATE INDEX IF NOT EXISTS idx_patients_dietitian_id ON patients(dietitian_id);
 
 -- 2. Patient Assessments Table
 CREATE TABLE IF NOT EXISTS patient_assessments (

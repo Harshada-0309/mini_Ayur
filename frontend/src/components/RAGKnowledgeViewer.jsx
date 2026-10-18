@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
+import DashboardIcon from './ui/DashboardIcons';
 
 const QUICK_QUERIES = [
   'Pitta pacifying diet guidelines',
@@ -69,7 +70,9 @@ export default function RAGKnowledgeViewer() {
       {/* 1. Header Banner */}
       <div className="rag-hero-card">
         <div className="rag-hero-header">
-          <div className="rag-icon-badge">📚</div>
+          <div className="rag-icon-badge" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <DashboardIcon name="book-open" size={22} />
+          </div>
           <div>
             <h2 className="rag-title">Ayurvedic Knowledge Base</h2>
             <p className="rag-subtitle">
@@ -81,7 +84,9 @@ export default function RAGKnowledgeViewer() {
         {/* Search Input Box */}
         <div className="rag-search-box">
           <div className="rag-input-wrapper">
-            <span className="rag-search-icon">🔍</span>
+            <span className="rag-search-icon" style={{ display: 'flex', alignItems: 'center' }}>
+              <DashboardIcon name="search" size={16} />
+            </span>
             <input
               type="text"
               className="rag-search-input"
@@ -150,7 +155,9 @@ export default function RAGKnowledgeViewer() {
 
       {/* 2. Safety / Grounding Notice */}
       <div className="rag-safety-notice">
-        <span className="rag-safety-icon">🛡️</span>
+        <span className="rag-safety-icon" style={{ display: 'flex', alignItems: 'center' }}>
+          <DashboardIcon name="shield-check" size={18} />
+        </span>
         <div className="rag-safety-text">
           <strong>Clinical Verification Notice:</strong> Grounded evidence from the AyurDiet knowledge base.
           This content is for dietitian review and is not a diagnosis or independent medical advice.
@@ -182,7 +189,9 @@ export default function RAGKnowledgeViewer() {
       {/* 5. Insufficient Evidence Warning Banner */}
       {!loading && hasSearched && isInsufficient && (
         <div className="rag-insufficient-warning">
-          <span style={{ fontSize: '1.4rem' }}>⚠️</span>
+          <span style={{ display: 'flex', alignItems: 'center' }}>
+            <DashboardIcon name="shield-alert" size={20} />
+          </span>
           <div>
             <strong>Notice:</strong> Insufficient evidence found in the knowledge base for this query.
             <div style={{ fontSize: '0.85rem', marginTop: '0.2rem', opacity: 0.9 }}>
@@ -195,7 +204,9 @@ export default function RAGKnowledgeViewer() {
       {/* 6. Empty State (Before Searching) */}
       {!loading && !hasSearched && (
         <div className="empty-state" style={{ marginTop: '1.5rem', background: '#ffffff' }}>
-          <div className="empty-icon">📖</div>
+          <div className="empty-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', color: 'var(--color-primary)' }}>
+            <DashboardIcon name="book-open" size={36} />
+          </div>
           <h3 style={{ fontSize: '1.2rem', color: '#0f2d23', marginBottom: '0.4rem' }}>
             Search the knowledge base to view grounded Ayurvedic evidence.
           </h3>
@@ -219,8 +230,9 @@ export default function RAGKnowledgeViewer() {
                 <strong>Results:</strong> {results.length} evidence chunk(s)
               </span>
               {metadata.query_expanded && (
-                <span className="rag-meta-pill rag-pill-expanded" title={`Expanded: ${metadata.query_expanded}`}>
-                  🔍 Query Expanded
+                <span className="rag-meta-pill rag-pill-expanded" title={`Expanded: ${metadata.query_expanded}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <DashboardIcon name="search" size={12} />
+                  <span>Query Expanded</span>
                 </span>
               )}
             </div>
@@ -234,7 +246,9 @@ export default function RAGKnowledgeViewer() {
 
           {results.length === 0 && !isInsufficient && (
             <div className="empty-state" style={{ marginTop: '1rem', background: '#ffffff' }}>
-              <div className="empty-icon">🔍</div>
+              <div className="empty-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', color: 'var(--color-slate-light)' }}>
+                <DashboardIcon name="search" size={36} />
+              </div>
               <h4 style={{ color: '#0f2d23' }}>No Matching Passages Found</h4>
               <p style={{ fontSize: '0.88rem', color: '#4a5d55' }}>
                 Try adjusting your search terms or using one of the suggested queries above.
@@ -259,8 +273,9 @@ export default function RAGKnowledgeViewer() {
                   <div className="rag-card-header">
                     <div className="rag-card-title-group">
                       <span className="rag-chunk-num">#{index + 1}</span>
-                      <h4 className="rag-doc-title">
-                        📄 {docName}
+                      <h4 className="rag-doc-title" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <DashboardIcon name="file-text" size={15} />
+                        <span>{docName}</span>
                       </h4>
                     </div>
 

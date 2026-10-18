@@ -81,7 +81,7 @@ async function checkDatabaseConnection(force = false) {
     // Fast query with race condition timeout
     const queryPromise = currentPool.query('SELECT NOW()');
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('PostgreSQL connection timeout')), 1000)
+      setTimeout(() => reject(new Error('PostgreSQL connection timeout')), 4000)
     );
 
     const result = await Promise.race([queryPromise, timeoutPromise]);

@@ -1,4 +1,5 @@
 import React from 'react';
+import DashboardIcon from './ui/DashboardIcons';
 
 export default function Header({ activePatient, currentWorkspace = 'clinical', onWorkspaceChange }) {
   const today = new Date().toLocaleDateString('en-US', {
@@ -11,7 +12,11 @@ export default function Header({ activePatient, currentWorkspace = 'clinical', o
   return (
     <header className="top-header">
       <div className="brand-section">
-        <div className="brand-logo-mark">A</div>
+        <img
+          src="/images/ayurdiet-emblem.png"
+          alt="AyurDiet Emblem"
+          style={{ width: '38px', height: '38px', objectFit: 'contain' }}
+        />
         <div>
           <div className="brand-title">
             AyurDiet
@@ -27,14 +32,14 @@ export default function Header({ activePatient, currentWorkspace = 'clinical', o
           className={`header-nav-tab ${currentWorkspace === 'clinical' ? 'active' : ''}`}
           onClick={() => onWorkspaceChange && onWorkspaceChange('clinical')}
         >
-          <span>📋</span> Patient Workspace
+          <DashboardIcon name="clipboard-check" size={16} /> Patient Workspace
         </button>
         <button
           type="button"
           className={`header-nav-tab ${currentWorkspace === 'knowledge' ? 'active' : ''}`}
           onClick={() => onWorkspaceChange && onWorkspaceChange('knowledge')}
         >
-          <span>📚</span> Knowledge Base
+          <DashboardIcon name="book-open" size={16} /> Knowledge Base
         </button>
       </nav>
 

@@ -2,22 +2,55 @@ import React, { useState, useEffect } from 'react';
 import NutritionTargetsView from './NutritionTargetsView';
 import MealPlanView from './MealPlanView';
 import DietPlanView from './DietPlanView';
+import DashboardIcon from './ui/DashboardIcons';
 import { api } from '../services/api';
 
 const SECTIONS = [
-  { id: 'sec-basic', label: '1. Basic Details', num: '1' },
-  { id: 'sec-body', label: '2. Body Measurements', num: '2' },
-  { id: 'sec-goal', label: '3. Diet Goal', num: '3' },
-  { id: 'sec-lifestyle', label: '4. Lifestyle', num: '4' },
-  { id: 'sec-diet', label: '5. Dietary Profile', num: '5' },
-  { id: 'sec-safety', label: '6. Safety Restrictions', num: '6' },
-  { id: 'sec-medical', label: '7. Medical Info', num: '7' },
-  { id: 'sec-ayurveda', label: '8. Ayurvedic Info', num: '8' },
-  { id: 'sec-lab', label: '9. Clinical / Lab (Optional)', num: '9' },
-  { id: 'sec-nutrition', label: '10. Nutrition Targets (Engine)', num: '10' },
-  { id: 'sec-mealplan', label: '11. Food & Meal Plan', num: '11' },
-  { id: 'sec-dietplan', label: '12. 7-Day Diet Plan (Gemini)', num: '12' },
+  { id: 'sec-basic', label: '1. Basic Details', num: '1', iconName: 'user-round', desc: 'Demographics & consultation date' },
+  { id: 'sec-body', label: '2. Body Measurements', num: '2', iconName: 'activity', desc: 'Anthropometrics, BMI & waist' },
+  { id: 'sec-goal', label: '3. Diet Goal', num: '3', iconName: 'target', desc: 'Primary therapeutic objective' },
+  { id: 'sec-lifestyle', label: '4. Lifestyle', num: '4', iconName: 'sun', desc: 'Activity, sleep & bowel habits' },
+  { id: 'sec-diet', label: '5. Dietary Profile', num: '5', iconName: 'utensils', desc: 'Diet category, schedule & fluids' },
+  { id: 'sec-safety', label: '6. Safety Restrictions', num: '6', iconName: 'shield-alert', desc: 'Food allergies & contraindications' },
+  { id: 'sec-medical', label: '7. Medical Info', num: '7', iconName: 'stethoscope', desc: 'Conditions, medications & surgeries' },
+  { id: 'sec-ayurveda', label: '8. Ayurvedic Info', num: '8', iconName: 'sprout', desc: 'Prakriti, Agni, Koshtha & Ama' },
+  { id: 'sec-lab', label: '9. Clinical / Lab (Optional)', num: '9', iconName: 'flask', desc: 'Pathology & biomarker values' },
+  { id: 'sec-nutrition', label: '10. Nutrition Targets (Engine)', num: '10', iconName: 'cpu', desc: 'Calculated calories & macros' },
+  { id: 'sec-mealplan', label: '11. Food & Meal Plan', num: '11', iconName: 'utensils', desc: 'Daily Ayurvedic meal items' },
+  { id: 'sec-dietplan', label: '12. 7-Day Diet Plan (Gemini)', num: '12', iconName: 'calendar-days', desc: 'Verified 7-day personalized regimen' },
 ];
+
+function checkSectionFilled(sectionId, formData, labRecords, targets, mealPlan, dietPlan) {
+  if (!formData) return false;
+  switch (sectionId) {
+    case 'sec-basic':
+      return Boolean(formData.assessment_date);
+    case 'sec-body':
+      return Boolean(formData.height && formData.weight);
+    case 'sec-goal':
+      return Boolean(formData.diet_goal);
+    case 'sec-lifestyle':
+      return Boolean(formData.sleep_duration_hours || formData.physical_activity_level || formData.bowel_movements);
+    case 'sec-diet':
+      return Boolean(formData.diet_category);
+    case 'sec-safety':
+      return Boolean((formData.allergies && formData.allergies.length > 0) || formData.contraindications);
+    case 'sec-medical':
+      return Boolean((formData.conditions && formData.conditions.length > 0) || formData.medications);
+    case 'sec-ayurveda':
+      return Boolean(formData.prakriti && formData.prakriti !== 'Unknown / Not assessed');
+    case 'sec-lab':
+      return Boolean(labRecords && labRecords.length > 0);
+    case 'sec-nutrition':
+      return Boolean(targets);
+    case 'sec-mealplan':
+      return Boolean(mealPlan);
+    case 'sec-dietplan':
+      return Boolean(dietPlan);
+    default:
+      return false;
+  }
+}
 
 const PRAKRITI_OPTIONS = [
   { value: 'Vata', label: 'Vata', type: 'vata' },
@@ -74,8 +107,13 @@ export default function AssessmentForm({
   savedDietPlan = null,
   onMealPlanSaved,
   onDietPlanSaved,
+  onSwitchPatient,
+  showPatientSidebar = false,
+  onOpenNewPatientModal,
+  onUpdatePatientPhoto,
 }) {
   const [activeTab, setActiveTab] = useState('sec-basic');
+  const [viewMode, setViewMode] = useState('stepper'); // 'stepper' or 'all'
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState(null);
   const [nutritionTargets, setNutritionTargets] = useState(savedMealPlan?.nutrition_targets || null);
@@ -534,12 +572,79 @@ export default function AssessmentForm({
     }
   };
 
+  const handlePatientPhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setFormError('Please select a valid image file (JPEG, PNG, or WebP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError('Patient photo size must be less than 5 MB.');
+      return;
+    }
+
+    try {
+      const res = await api.uploadPatientPhoto(patient.id, file);
+      const newPhotoUrl = res.data?.photo_url;
+      if (newPhotoUrl && onUpdatePatientPhoto) {
+        onUpdatePatientPhoto(patient.id, newPhotoUrl);
+      }
+    } catch (err) {
+      console.error('Failed to upload patient photo:', err);
+      setFormError(err.message || 'Failed to save patient photo to clinical record.');
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
       {/* Patient Header Card */}
       <div className="patient-profile-card">
         <div className="profile-identity">
-          <div className="profile-avatar">{patient.name.charAt(0).toUpperCase()}</div>
+          <div className="profile-avatar-container" style={{ position: 'relative', flexShrink: 0 }}>
+            {patient.photo_url ? (
+              <img
+                src={patient.photo_url}
+                alt={patient.name}
+                className="profile-avatar-img"
+                style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--color-primary)' }}
+              />
+            ) : (
+              <div className="profile-avatar">{patient.name.charAt(0).toUpperCase()}</div>
+            )}
+            <label
+              htmlFor={`patient-photo-input-${patient.id}`}
+              className="profile-photo-change-btn"
+              title="Upload patient photo"
+              style={{
+                position: 'absolute',
+                bottom: '-2px',
+                right: '-2px',
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: 'var(--color-primary)',
+                color: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                border: '1.5px solid #FFFFFF',
+              }}
+            >
+              <DashboardIcon name="camera" size={11} />
+            </label>
+            <input
+              id={`patient-photo-input-${patient.id}`}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePatientPhotoUpload}
+              style={{ display: 'none' }}
+            />
+          </div>
+
           <div className="profile-info">
             <h2>{patient.name}</h2>
             <div className="profile-tags">
@@ -547,42 +652,129 @@ export default function AssessmentForm({
               <span className="profile-tag">{patient.age} yrs</span>
               <span className="profile-tag" style={{ textTransform: 'capitalize' }}>{patient.sex}</span>
               {patient.occupation && <span className="profile-tag">{patient.occupation}</span>}
-              {patient.phone && <span className="profile-tag">📞 {patient.phone}</span>}
+              {patient.phone && (
+                <span className="profile-tag">
+                  <DashboardIcon name="clock" size={12} /> {patient.phone}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="profile-actions">
+        <div className="profile-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+          {onSwitchPatient && (
+            <button
+              type="button"
+              className={`btn-patient-toggle ${showPatientSidebar ? 'active' : ''}`}
+              onClick={onSwitchPatient}
+              title="Toggle Patient Directory"
+            >
+              <DashboardIcon name="users" size={15} /> {showPatientSidebar ? 'Hide Patient List' : 'Switch Patient'}
+            </button>
+          )}
+
+          {onOpenNewPatientModal && (
+            <button
+              type="button"
+              className="btn-new-patient-mini"
+              onClick={onOpenNewPatientModal}
+              title="Register New Patient"
+            >
+              <DashboardIcon name="plus" size={14} /> New Patient
+            </button>
+          )}
+
+          <div className="assessment-view-toggle">
+            <button
+              type="button"
+              className={`view-toggle-btn ${viewMode === 'stepper' ? 'active' : ''}`}
+              onClick={() => setViewMode('stepper')}
+              title="Vertical Stepper Workflow"
+            >
+              <DashboardIcon name="clipboard-check" size={13} /> Stepper View
+            </button>
+            <button
+              type="button"
+              className={`view-toggle-btn ${viewMode === 'all' ? 'active' : ''}`}
+              onClick={() => setViewMode('all')}
+              title="View all 12 sections in continuous vertical flow"
+            >
+              <DashboardIcon name="file-text" size={13} /> All Sections View
+            </button>
+          </div>
+
           <span style={{ fontSize: '0.82rem', color: '#788d84' }}>
-            {existingAssessment ? `Editing Assessment #${existingAssessment.id}` : 'Creating New Assessment'}
+            {existingAssessment ? `Assessment #${existingAssessment.id}` : 'New Assessment'}
           </span>
         </div>
       </div>
 
-      {/* Navigation Tabs for 9 Sections */}
-      <div className="assessment-nav">
-        {SECTIONS.map((sec) => (
-          <button
-            key={sec.id}
-            type="button"
-            className={`nav-tab-btn ${activeTab === sec.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(sec.id)}
-          >
-            <span className="tab-num">{sec.num}</span>
-            {sec.label.replace(/^\d+\.\s*/, '')}
-          </button>
-        ))}
-      </div>
-
       {formError && (
         <div className="toast-banner toast-error">
+          <DashboardIcon name="shield-alert" size={16} />
           <span>{formError}</span>
         </div>
       )}
 
+      {/* Vertical Assessment Layout */}
+      <div className="assessment-vertical-layout">
+        {/* Left Vertical Stepper Rail */}
+        <aside className="assessment-vertical-stepper">
+          <div className="vertical-stepper-header">
+            <h4>Clinical Sections</h4>
+            <span className="stepper-progress-pill">
+              {viewMode === 'all' ? '12 Sections' : `Step ${SECTIONS.findIndex(s => s.id === activeTab) + 1} / ${SECTIONS.length}`}
+            </span>
+          </div>
+
+          <div className="vertical-stepper-list">
+            {SECTIONS.map((sec) => {
+              const isActive = activeTab === sec.id;
+              const isFilled = checkSectionFilled(sec.id, formData, labRecords, nutritionTargets, mealPlan, dietPlan);
+
+              return (
+                <button
+                  key={sec.id}
+                  type="button"
+                  className={`vertical-stepper-item ${isActive && viewMode === 'stepper' ? 'active' : ''} ${isFilled ? 'completed' : ''}`}
+                  onClick={() => {
+                    setActiveTab(sec.id);
+                    if (viewMode === 'all') {
+                      const el = document.getElementById(sec.id);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                  title={sec.label}
+                >
+                  <div className="stepper-item-left">
+                    <span className="stepper-num-badge">
+                      {isFilled && (!isActive || viewMode === 'all') ? (
+                        <DashboardIcon name="check" size={12} />
+                      ) : (
+                        sec.num
+                      )}
+                    </span>
+                    <span className="stepper-item-icon">
+                      <DashboardIcon name={sec.iconName} size={15} />
+                    </span>
+                  </div>
+                  <div className="stepper-item-text">
+                    <span className="stepper-item-title">{sec.label.replace(/^\d+\.\s*/, '')}</span>
+                    <span className="stepper-item-desc">{sec.desc}</span>
+                  </div>
+                  {isActive && viewMode === 'stepper' && <span className="stepper-active-indicator" />}
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+
+        {/* Right Section Form Workspace */}
+        <div className="assessment-active-workspace">
+
       {/* SECTION 1: BASIC DETAILS */}
-      {activeTab === 'sec-basic' && (
-        <div className="form-card">
+      {(activeTab === 'sec-basic' || viewMode === 'all') && (
+        <div className="form-card" id="sec-basic">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -638,8 +830,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 2: BODY MEASUREMENTS */}
-      {activeTab === 'sec-body' && (
-        <div className="form-card">
+      {(activeTab === 'sec-body' || viewMode === 'all') && (
+        <div className="form-card" id="sec-body">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -653,10 +845,10 @@ export default function AssessmentForm({
               <button
                 type="button"
                 className="btn-secondary"
-                style={{ fontSize: '0.82rem', padding: '0.4rem 0.85rem', borderColor: '#2d6a4f', color: '#1b4332' }}
+                style={{ fontSize: '0.82rem', padding: '0.4rem 0.85rem', borderColor: '#2d6a4f', color: '#1b4332', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 onClick={handleComputeTargets}
               >
-                ⚡ Compute Nutrition Targets →
+                <DashboardIcon name="cpu" size={14} /> Compute Nutrition Targets →
               </button>
             )}
           </div>
@@ -725,8 +917,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 3: DIET GOAL */}
-      {activeTab === 'sec-goal' && (
-        <div className="form-card">
+      {(activeTab === 'sec-goal' || viewMode === 'all') && (
+        <div className="form-card" id="sec-goal">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -781,8 +973,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 4: LIFESTYLE */}
-      {activeTab === 'sec-lifestyle' && (
-        <div className="form-card">
+      {(activeTab === 'sec-lifestyle' || viewMode === 'all') && (
+        <div className="form-card" id="sec-lifestyle">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -902,8 +1094,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 5: DIETARY PROFILE */}
-      {activeTab === 'sec-diet' && (
-        <div className="form-card">
+      {(activeTab === 'sec-diet' || viewMode === 'all') && (
+        <div className="form-card" id="sec-diet">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -987,8 +1179,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 6: SAFETY RESTRICTIONS */}
-      {activeTab === 'sec-safety' && (
-        <div className="form-card">
+      {(activeTab === 'sec-safety' || viewMode === 'all') && (
+        <div className="form-card" id="sec-safety">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1036,8 +1228,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 7: MEDICAL INFORMATION */}
-      {activeTab === 'sec-medical' && (
-        <div className="form-card">
+      {(activeTab === 'sec-medical' || viewMode === 'all') && (
+        <div className="form-card" id="sec-medical">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1180,8 +1372,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 8: AYURVEDIC INFORMATION */}
-      {activeTab === 'sec-ayurveda' && (
-        <div className="form-card">
+      {(activeTab === 'sec-ayurveda' || viewMode === 'all') && (
+        <div className="form-card" id="sec-ayurveda">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1316,8 +1508,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 9: CLINICAL & LABORATORY DATA (OPTIONAL) */}
-      {activeTab === 'sec-lab' && (
-        <div className="form-card">
+      {(activeTab === 'sec-lab' || viewMode === 'all') && (
+        <div className="form-card" id="sec-lab">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1334,7 +1526,7 @@ export default function AssessmentForm({
                 className="btn-new-patient"
                 onClick={onOpenLabModal}
               >
-                <span>+</span> Add Lab Test
+                <DashboardIcon name="plus" size={13} /> Add Lab Test
               </button>
             ) : (
               <div style={{ fontSize: '0.8rem', color: '#c98a3e', background: '#fef7ed', padding: '0.3rem 0.75rem', borderRadius: '6px' }}>
@@ -1345,7 +1537,9 @@ export default function AssessmentForm({
 
           {labRecords.length === 0 ? (
             <div style={{ padding: '2.5rem 1rem', textAlign: 'center', color: '#788d84' }}>
-              <div style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>🧪</div>
+              <div style={{ marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
+                <DashboardIcon name="flask" size={32} />
+              </div>
               <p style={{ fontWeight: 500 }}>No clinical or laboratory records entered yet.</p>
               <p style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
                 This section is optional. You can record blood panels (Glucose, Lipids, LFT, KFT, Thyroid) and store report metadata.
@@ -1355,9 +1549,9 @@ export default function AssessmentForm({
                   type="button"
                   className="btn-add-row"
                   onClick={onOpenLabModal}
-                  style={{ marginTop: '1rem' }}
+                  style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                 >
-                  <span>+</span> Add First Lab Record
+                  <DashboardIcon name="plus" size={13} /> Add First Lab Record
                 </button>
               )}
             </div>
@@ -1392,8 +1586,8 @@ export default function AssessmentForm({
                     </td>
                     <td>
                       {item.report_file_metadata ? (
-                        <span style={{ fontSize: '0.76rem', color: '#15803d' }}>
-                          📄 {item.report_file_metadata.fileName}
+                        <span style={{ fontSize: '0.76rem', color: '#15803d', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                          <DashboardIcon name="file-text" size={13} /> {item.report_file_metadata.fileName}
                         </span>
                       ) : (
                         <span style={{ color: '#9ca3af' }}>—</span>
@@ -1434,8 +1628,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 10: NUTRITION TARGETS (DETERMINISTIC ENGINE) */}
-      {activeTab === 'sec-nutrition' && (
-        <div className="form-card">
+      {(activeTab === 'sec-nutrition' || viewMode === 'all') && (
+        <div className="form-card" id="sec-nutrition">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1450,8 +1644,10 @@ export default function AssessmentForm({
               className="btn-primary"
               onClick={handleComputeTargets}
               disabled={loadingTargets}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              {loadingTargets ? 'Computing...' : '⚡ Recompute Targets'}
+              <DashboardIcon name="cpu" size={15} />
+              <span>{loadingTargets ? 'Computing...' : 'Recompute Targets'}</span>
             </button>
           </div>
 
@@ -1465,8 +1661,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 11: FOOD & MEAL PLAN (DETERMINISTIC ENGINE) */}
-      {activeTab === 'sec-mealplan' && (
-        <div className="form-card">
+      {(activeTab === 'sec-mealplan' || viewMode === 'all') && (
+        <div className="form-card" id="sec-mealplan">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1481,8 +1677,10 @@ export default function AssessmentForm({
               className="btn-primary"
               onClick={handleGenerateMealPlan}
               disabled={loadingPlan}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              {loadingPlan ? 'Generating Plan...' : '⚡ Generate Meal Plan'}
+              <DashboardIcon name="utensils" size={15} />
+              <span>{loadingPlan ? 'Generating Plan...' : 'Generate Meal Plan'}</span>
             </button>
           </div>
 
@@ -1498,8 +1696,8 @@ export default function AssessmentForm({
       )}
 
       {/* SECTION 12: 7-DAY DIET PLAN (GEMINI POWERED) */}
-      {activeTab === 'sec-dietplan' && (
-        <div className="form-card">
+      {(activeTab === 'sec-dietplan' || viewMode === 'all') && (
+        <div className="form-card" id="sec-dietplan">
           <div className="section-header">
             <div>
               <h3 className="section-title">
@@ -1514,8 +1712,10 @@ export default function AssessmentForm({
               className="btn-primary"
               onClick={() => handleGenerateDietPlan()}
               disabled={loadingDietPlan}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              {loadingDietPlan ? 'Generating 7-Day Plan...' : '⚡ Generate 7-Day Plan'}
+              <DashboardIcon name="calendar-days" size={15} />
+              <span>{loadingDietPlan ? 'Generating 7-Day Plan...' : 'Generate 7-Day Plan'}</span>
             </button>
           </div>
 
@@ -1536,17 +1736,19 @@ export default function AssessmentForm({
       )}
 
       {/* Floating Action Footer */}
-      <div className="action-footer">
+      <div className="action-footer" style={{ marginTop: '1.25rem' }}>
         <div>
           <span style={{ fontSize: '0.85rem', color: '#4a5d55' }}>
-            Section {SECTIONS.findIndex((s) => s.id === activeTab) + 1} of {SECTIONS.length}:{' '}
-            <strong>{SECTIONS.find((s) => s.id === activeTab)?.label}</strong>
+            {viewMode === 'all'
+              ? 'All 12 Clinical Sections Displayed Vertically'
+              : `Section ${SECTIONS.findIndex((s) => s.id === activeTab) + 1} of ${SECTIONS.length}: ${SECTIONS.find((s) => s.id === activeTab)?.label}`
+            }
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.85rem' }}>
+        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
           {/* Step navigation buttons */}
-          {activeTab !== 'sec-basic' && (
+          {viewMode === 'stepper' && activeTab !== 'sec-basic' && (
             <button
               type="button"
               className="btn-secondary"
@@ -1559,10 +1761,11 @@ export default function AssessmentForm({
             </button>
           )}
 
-          {activeTab !== 'sec-mealplan' && (
+          {viewMode === 'stepper' && activeTab !== 'sec-dietplan' && (
             <button
               type="button"
-              className="btn-secondary"
+              className="btn-primary"
+              style={{ backgroundColor: 'var(--color-primary)' }}
               onClick={() => {
                 const idx = SECTIONS.findIndex((s) => s.id === activeTab);
                 if (idx < SECTIONS.length - 1) setActiveTab(SECTIONS[idx + 1].id);
@@ -1575,27 +1778,29 @@ export default function AssessmentForm({
           <button
             type="button"
             className="btn-secondary"
-            style={{ borderColor: '#2d6a4f', color: '#1b4332', fontWeight: 600 }}
+            style={{ borderColor: '#2d6a4f', color: '#1b4332', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             onClick={handleComputeTargets}
             disabled={loadingTargets}
           >
-            ⚡ Targets
+            <DashboardIcon name="cpu" size={14} />
+            <span>Targets</span>
           </button>
 
           <button
             type="button"
             className="btn-secondary"
-            style={{ borderColor: '#0f766e', color: '#0f766e', fontWeight: 600 }}
+            style={{ borderColor: '#0f766e', color: '#0f766e', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             onClick={handleGenerateMealPlan}
             disabled={loadingPlan}
           >
-            🥗 {activeTab === 'sec-mealplan' ? 'Regenerate Day' : '1-Day Plan'}
+            <DashboardIcon name="utensils" size={14} />
+            <span>{activeTab === 'sec-mealplan' ? 'Regenerate Day' : '1-Day Plan'}</span>
           </button>
 
           <button
             type="button"
             className="btn-secondary"
-            style={{ borderColor: '#1b4332', color: '#1b4332', fontWeight: 700, backgroundColor: activeTab === 'sec-dietplan' ? '#e8f5e9' : 'transparent' }}
+            style={{ borderColor: '#1b4332', color: '#1b4332', fontWeight: 700, backgroundColor: activeTab === 'sec-dietplan' ? '#e8f5e9' : 'transparent', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             onClick={() => {
               if (!dietPlan) {
                 handleGenerateDietPlan();
@@ -1605,18 +1810,24 @@ export default function AssessmentForm({
             }}
             disabled={loadingDietPlan}
           >
-            📅 {loadingDietPlan ? 'Generating...' : activeTab === 'sec-dietplan' ? '7-Day Plan' : '7-Day Diet Plan'}
+            <DashboardIcon name="calendar-days" size={14} />
+            <span>{loadingDietPlan ? 'Generating...' : activeTab === 'sec-dietplan' ? '7-Day Plan' : '7-Day Diet Plan'}</span>
           </button>
 
           <button
             type="submit"
             className="btn-primary"
             disabled={saving}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
-            {saving ? 'Saving...' : existingAssessment ? '✓ Update Assessment' : '✓ Save Assessment'}
+            <DashboardIcon name="check" size={14} />
+            <span>{saving ? 'Saving...' : existingAssessment ? 'Update Assessment' : 'Save Assessment'}</span>
           </button>
         </div>
       </div>
+
+        </div> {/* Close assessment-active-workspace */}
+      </div> {/* Close assessment-vertical-layout */}
 
     </form>
   );

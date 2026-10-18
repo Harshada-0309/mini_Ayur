@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardIcon from './ui/DashboardIcons';
 
 export default function NutritionTargetsView({
   targets,
@@ -26,7 +27,9 @@ export default function NutritionTargetsView({
   if (error) {
     return (
       <div className="nutrition-error-card">
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', color: '#842029' }}>
+          <DashboardIcon name="shield-alert" size={32} />
+        </div>
         <h4 style={{ color: '#842029', fontWeight: 600 }}>Calculation Engine Notice</h4>
         <p style={{ color: '#842029', fontSize: '0.9rem', marginTop: '0.4rem' }}>
           {error.message || 'Unable to compute nutrition targets. Please check that height, weight, age, and diet goal are set.'}
@@ -48,7 +51,9 @@ export default function NutritionTargetsView({
   if (!targets) {
     return (
       <div className="empty-state" style={{ padding: '3rem 1.5rem', background: '#ffffff', borderRadius: '12px', border: '1px dashed #c9d8ce' }}>
-        <div className="empty-icon">⚡</div>
+        <div className="empty-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', color: 'var(--color-primary)' }}>
+          <DashboardIcon name="sparkles" size={36} />
+        </div>
         <h3 style={{ fontSize: '1.2rem', color: '#0f2d23', marginBottom: '0.4rem' }}>
           No Targets Calculated Yet
         </h3>
@@ -60,8 +65,10 @@ export default function NutritionTargetsView({
             type="button"
             className="btn-primary"
             onClick={onRecalculate}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', margin: '0 auto' }}
           >
-            ⚡ Compute Nutrition Targets
+            <DashboardIcon name="sparkles" size={15} />
+            <span>Compute Nutrition Targets</span>
           </button>
         )}
       </div>
@@ -142,8 +149,10 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
               className="btn-hero-action"
               onClick={handleCopySummary}
               title="Copy Summary to Clipboard"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             >
-              {copied ? '✓ Copied' : '📋 Copy Summary'}
+              <DashboardIcon name={copied ? 'check' : 'clipboard-check'} size={14} />
+              <span>{copied ? 'Copied' : 'Copy Summary'}</span>
             </button>
             {onRecalculate && (
               <button
@@ -151,8 +160,10 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
                 className="btn-hero-action"
                 onClick={onRecalculate}
                 title="Recalculate with updated inputs"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
               >
-                🔄 Recalculate
+                <DashboardIcon name="refresh-cw" size={14} />
+                <span>Recalculate</span>
               </button>
             )}
           </div>
@@ -162,7 +173,9 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
       {/* WARNINGS & CLINICAL ALERTS */}
       {((calculation_metadata?.warnings && calculation_metadata.warnings.length > 0) || condition_specific) && (
         <div className="nutrition-alerts-card">
-          <div className="alert-icon">⚠️</div>
+          <div className="alert-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <DashboardIcon name="shield-alert" size={18} />
+          </div>
           <div className="alert-content">
             <strong>Clinical Safety & Special Considerations:</strong>
             <ul style={{ margin: '0.4rem 0 0 1.2rem', padding: 0, fontSize: '0.88rem' }}>
@@ -252,7 +265,9 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
 
           <div className="daily-floors-grid">
             <div className="floor-box">
-              <div className="floor-icon">🌾</div>
+              <div className="floor-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <DashboardIcon name="sprout" size={18} />
+              </div>
               <div>
                 <span className="floor-title">Dietary Fiber</span>
                 <div className="floor-value">{other_targets?.fiber_g_day} <span className="unit">g / day</span></div>
@@ -261,7 +276,9 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
             </div>
 
             <div className="floor-box">
-              <div className="floor-icon">💧</div>
+              <div className="floor-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <DashboardIcon name="droplet" size={18} />
+              </div>
               <div>
                 <span className="floor-title">Daily Hydration</span>
                 <div className="floor-value">
@@ -273,7 +290,9 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
             </div>
 
             <div className="floor-box">
-              <div className="floor-icon">⚖️</div>
+              <div className="floor-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <DashboardIcon name="ruler" size={18} />
+              </div>
               <div>
                 <span className="floor-title">Anthropometric Baseline</span>
                 <div className="floor-value">
@@ -329,7 +348,10 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
             </div>
 
             <div className="rasa-column rasa-moderate">
-              <span className="rasa-label">⚠️ Pacify / Moderate Rasas</span>
+              <span className="rasa-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                <DashboardIcon name="shield-alert" size={13} />
+                <span>Pacify / Moderate Rasas</span>
+              </span>
               <div className="rasa-tags">
                 {ayurvedic_profile?.tastes_to_pacify_or_moderate?.map((taste, i) => (
                   <span key={i} className="rasa-chip chip-mod">{taste}</span>
@@ -410,8 +432,11 @@ Prakriti: ${ayurvedic_profile?.prakriti || 'N/A'} | Agni: ${ayurvedic_profile?.a
           className="explainability-toggle-btn"
           onClick={() => setShowFormulas(!showFormulas)}
         >
-          <span>📐 Mathematical Explainability & Scientific Rationale</span>
-          <span>{showFormulas ? '▲ Hide' : '▼ View Formulas & Assumptions'}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <DashboardIcon name="target" size={16} />
+            Mathematical Explainability & Scientific Rationale
+          </span>
+          <span>{showFormulas ? 'Hide' : 'View Formulas & Assumptions'}</span>
         </button>
 
         {showFormulas && (

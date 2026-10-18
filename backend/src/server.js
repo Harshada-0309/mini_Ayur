@@ -1,8 +1,9 @@
 const app = require('./app');
 const config = require('./config/env');
 const { closePool } = require('./config/database');
-
+const { runMigration } = require('./db/migrate');
 const { seedData } = require('./db/seed');
+const dietitianRepository = require('./repositories/dietitianRepository');
 const patientRepository = require('./repositories/patientRepository');
 
 const server = app.listen(config.port, async () => {
@@ -10,15 +11,22 @@ const server = app.listen(config.port, async () => {
   console.log(`[AyurDiet Backend] Health endpoint: http://localhost:${config.port}/health`);
   console.log(`[AyurDiet Backend] Patients API: http://localhost:${config.port}/api/patients`);
 
-  if (config.env === 'development') {
-    try {
+  try {
+    // 1. Run database migration automatically on startup
+    await runMigration();
+
+    // 2. Seed default authorized clinic dietitians into PostgreSQL
+    await dietitianRepository.seedDefaults();
+
+    // 3. Seed demo patients if database is fresh
+    if (config.env === 'development') {
       const existing = await patientRepository.findAll({ limit: 1 });
       if (existing.length === 0) {
         await seedData();
       }
-    } catch (e) {
-      console.warn('[AyurDiet Backend] Seed initialization note:', e.message);
     }
+  } catch (e) {
+    console.warn('[AyurDiet Backend] Startup initialization warning:', e.message);
   }
 });
 

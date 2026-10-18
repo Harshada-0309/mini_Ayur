@@ -14,6 +14,7 @@ async function seedData() {
     occupation: 'Financial Analyst',
     phone: '+91 98201 44552',
     email: 'priya.sharma@example.com',
+    dietitian_id: 1,
   });
 
   const assessment1 = await assessmentRepository.create(patient1.id, {
@@ -92,6 +93,7 @@ async function seedData() {
     occupation: 'Civil Engineer',
     phone: '+91 97112 33445',
     email: 'vikram.j@example.com',
+    dietitian_id: 2,
   });
 
   await assessmentRepository.create(patient2.id, {

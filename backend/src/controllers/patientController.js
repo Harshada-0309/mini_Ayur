@@ -6,9 +6,10 @@ const patientRepository = require('../repositories/patientRepository');
 
 const getPatients = async (req, res, next) => {
   try {
-    const { search, limit = 50, offset = 0 } = req.query;
+    const { search, limit = 50, offset = 0, dietitian_id } = req.query;
     const patients = await patientRepository.findAll({
       search,
+      dietitian_id: dietitian_id || undefined,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
     });
@@ -46,7 +47,7 @@ const getPatientById = async (req, res, next) => {
 
 const createPatient = async (req, res, next) => {
   try {
-    const { name, age, sex, occupation, phone, email, patient_code } = req.body;
+    const { name, age, sex, occupation, phone, email, patient_code, photo_url, dietitian_id } = req.body;
 
     // Check if custom patient code already exists
     if (patient_code) {
@@ -59,6 +60,8 @@ const createPatient = async (req, res, next) => {
       }
     }
 
+    const assignedDietitianId = dietitian_id || req.dietitian?.id || null;
+
     const patient = await patientRepository.create({
       name: name.trim(),
       age: parseInt(age, 10),
@@ -67,6 +70,8 @@ const createPatient = async (req, res, next) => {
       phone: phone ? phone.trim() : '',
       email: email ? email.trim() : '',
       patient_code: patient_code ? patient_code.trim() : undefined,
+      photo_url: photo_url ? photo_url.trim() : undefined,
+      dietitian_id: assignedDietitianId,
     });
 
     return res.status(201).json({
@@ -91,7 +96,7 @@ const updatePatient = async (req, res, next) => {
       });
     }
 
-    const { name, age, sex, occupation, phone, email } = req.body;
+    const { name, age, sex, occupation, phone, email, photo_url, dietitian_id } = req.body;
     const updated = await patientRepository.update(id, {
       name: name ? name.trim() : undefined,
       age: age !== undefined ? parseInt(age, 10) : undefined,
@@ -99,6 +104,8 @@ const updatePatient = async (req, res, next) => {
       occupation: occupation !== undefined ? occupation.trim() : undefined,
       phone: phone !== undefined ? phone.trim() : undefined,
       email: email !== undefined ? email.trim() : undefined,
+      photo_url: photo_url !== undefined ? photo_url : undefined,
+      dietitian_id: dietitian_id !== undefined ? dietitian_id : undefined,
     });
 
     return res.status(200).json({

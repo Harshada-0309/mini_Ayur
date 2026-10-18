@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import DashboardIcon from './ui/DashboardIcons';
 
 export default function DietPlanView({
   patient,
@@ -243,7 +244,9 @@ export default function DietPlanView({
   if (!dietPlan) {
     return (
       <div className="empty-state-container" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: 'var(--color-primary)' }}>
+          <DashboardIcon name="calendar-days" size={44} />
+        </div>
         <h4 style={{ color: '#1b4332', fontSize: '1.25rem', marginBottom: '0.5rem' }}>
           7-Day Personalized Ayurvedic Diet Plan
         </h4>
@@ -253,10 +256,11 @@ export default function DietPlanView({
         <button
           type="button"
           className="btn-primary"
-          style={{ padding: '0.75rem 1.75rem', fontSize: '0.95rem' }}
+          style={{ padding: '0.75rem 1.75rem', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', margin: '0 auto' }}
           onClick={() => onGeneratePlan && onGeneratePlan(dietitianNotesInput)}
         >
-          ⚡ Generate 7-Day Diet Plan
+          <DashboardIcon name="sparkles" size={16} />
+          <span>Generate 7-Day Diet Plan</span>
         </button>
       </div>
     );
@@ -339,8 +343,10 @@ export default function DietPlanView({
               }}
               onClick={() => onGeneratePlan && onGeneratePlan(dietitianNotesInput)}
               disabled={isEditing}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              🔄 Regenerate
+              <DashboardIcon name="refresh-cw" size={13} />
+              <span>Regenerate</span>
             </button>
 
             <button
@@ -352,11 +358,15 @@ export default function DietPlanView({
                 borderColor: 'rgba(255, 255, 255, 0.25)',
                 fontSize: '0.82rem',
                 padding: '0.45rem 0.85rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
               }}
               onClick={handleRevalidate}
               disabled={revalidating}
             >
-              {revalidating ? 'Checking...' : '🛡️ Re-validate Guardrails'}
+              <DashboardIcon name="shield-check" size={13} />
+              <span>{revalidating ? 'Checking...' : 'Re-validate Guardrails'}</span>
             </button>
 
             {!isEditing ? (
@@ -369,10 +379,14 @@ export default function DietPlanView({
                   fontWeight: 600,
                   fontSize: '0.82rem',
                   padding: '0.45rem 0.95rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
                 }}
                 onClick={handleStartEditing}
               >
-                ✏️ Edit Portions & Notes
+                <DashboardIcon name="pencil" size={13} />
+                <span>Edit Portions & Notes</span>
               </button>
             ) : (
               <>
@@ -398,11 +412,15 @@ export default function DietPlanView({
                     fontWeight: 700,
                     fontSize: '0.82rem',
                     padding: '0.45rem 0.95rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
                   }}
                   onClick={handleSaveEdits}
                   disabled={saving}
                 >
-                  {saving ? 'Saving...' : '💾 Save & Verify'}
+                  <DashboardIcon name="check" size={13} />
+                  <span>{saving ? 'Saving...' : 'Save & Verify'}</span>
                 </button>
               </>
             )}
@@ -417,10 +435,14 @@ export default function DietPlanView({
                   fontWeight: 700,
                   fontSize: '0.82rem',
                   padding: '0.45rem 0.95rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
                 }}
                 onClick={() => setApprovalModalOpen(true)}
               >
-                🔏 Sign & Approve Plan
+                <DashboardIcon name="lock" size={13} />
+                <span>Sign & Approve Plan</span>
               </button>
             )}
           </div>
@@ -440,7 +462,7 @@ export default function DietPlanView({
               gap: '0.5rem',
             }}
           >
-            <span>📜</span>
+            <DashboardIcon name="file-text" size={14} />
             <span>
               Officially signed off on {new Date(activePlan.approved_at).toLocaleString()} by{' '}
               <strong>{activePlan.approved_by || 'Registered Dietitian'}</strong>.
@@ -454,7 +476,7 @@ export default function DietPlanView({
         {/* Patient & Clinical Rationale Card */}
         <div className="card" style={{ padding: '1.25rem' }}>
           <h4 style={{ fontSize: '0.95rem', color: '#1b4332', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>📋</span> Clinical Patient Assessment & Rationale
+            <DashboardIcon name="clipboard-check" size={15} /> Clinical Patient Assessment & Rationale
           </h4>
           <p style={{ fontSize: '0.86rem', color: '#2d3748', lineHeight: '1.5', marginBottom: '0.75rem' }}>
             {activePlan.patient_summary}
@@ -472,7 +494,7 @@ export default function DietPlanView({
         {/* Ayurvedic Ahara Principles Card */}
         <div className="card" style={{ padding: '1.25rem' }}>
           <h4 style={{ fontSize: '0.95rem', color: '#1b4332', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>🌿</span> Ayurvedic Dietary Principles (Ahara Vidhi)
+            <DashboardIcon name="sprout" size={15} /> Ayurvedic Dietary Principles (Ahara Vidhi)
           </h4>
           <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.84rem', color: '#2d3748', lineHeight: '1.5' }}>
             {(activePlan.ayurvedic_dietary_principles || []).map((p, idx) => (
@@ -498,7 +520,7 @@ export default function DietPlanView({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>{validationReport.passed ? '🛡️' : '⚠️'}</span>
+            <DashboardIcon name={validationReport.passed ? 'shield-check' : 'shield-alert'} size={22} style={{ color: validationReport.passed ? '#166534' : '#991b1b' }} />
             <div>
               <div style={{ fontWeight: 600, fontSize: '0.88rem', color: validationReport.passed ? '#166534' : '#991b1b' }}>
                 {validationReport.passed
@@ -507,7 +529,7 @@ export default function DietPlanView({
               </div>
               <div style={{ fontSize: '0.78rem', color: validationReport.passed ? '#15803d' : '#b91c1c' }}>
                 {validationReport.item_check_count > 0 && `${validationReport.item_check_count} items validated • `}
-                Macro Tolerances: {validationReport.macro_tolerance_passed ? '✓ Passed' : '⚠️ Flagged'} • Allergens: {validationReport.allergen_safety_passed ? '✓ Safe' : '❌ Conflict'} • Curative Claims: {validationReport.forbidden_claims_found?.length ? '❌ Detected' : '✓ 0 Detected'}
+                Macro Tolerances: {validationReport.macro_tolerance_passed ? 'Passed' : 'Flagged'} • Allergens: {validationReport.allergen_safety_passed ? 'Safe' : 'Conflict'} • Curative Claims: {validationReport.forbidden_claims_found?.length ? 'Detected' : '0 Detected'}
               </div>
             </div>
           </div>
@@ -707,9 +729,13 @@ export default function DietPlanView({
                         color: '#475569',
                         padding: '0.15rem 0.45rem',
                         borderRadius: '4px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
                       }}
                     >
-                      🕒 {meal.timing}
+                      <DashboardIcon name="clock" size={11} />
+                      <span>{meal.timing}</span>
                     </span>
                   </div>
 
@@ -752,8 +778,9 @@ export default function DietPlanView({
 
                           {/* Preparation Instructions */}
                           {!isEditing ? (
-                            <div style={{ fontSize: '0.8rem', color: '#334155', marginTop: '0.25rem', lineHeight: '1.4' }}>
-                              🍳 <em>{food.preparation_notes}</em>
+                            <div style={{ fontSize: '0.8rem', color: '#334155', marginTop: '0.25rem', lineHeight: '1.4', display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+                              <DashboardIcon name="utensils" size={12} style={{ flexShrink: 0, color: 'var(--color-primary)' }} />
+                              <em>{food.preparation_notes}</em>
                             </div>
                           ) : (
                             <div style={{ marginTop: '0.35rem' }}>
@@ -768,8 +795,9 @@ export default function DietPlanView({
                           )}
 
                           {food.ayurvedic_properties && (
-                            <div style={{ fontSize: '0.74rem', color: '#0f766e', marginTop: '0.2rem' }}>
-                              🌿 {food.ayurvedic_properties}
+                            <div style={{ fontSize: '0.74rem', color: '#0f766e', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <DashboardIcon name="sprout" size={12} />
+                              <span>{food.ayurvedic_properties}</span>
                             </div>
                           )}
                         </div>
@@ -835,7 +863,7 @@ export default function DietPlanView({
       <div className="grid-2" style={{ gap: '1rem' }}>
         <div className="card" style={{ padding: '1.25rem' }}>
           <h4 style={{ fontSize: '0.95rem', color: '#1b4332', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>🔄</span> Weekly Grain & Pulse Rotation Strategy
+            <DashboardIcon name="refresh-cw" size={15} /> Weekly Grain & Pulse Rotation Strategy
           </h4>
           <p style={{ margin: 0, fontSize: '0.84rem', color: '#334155', lineHeight: '1.5' }}>
             {activePlan.weekly_overview}
@@ -844,7 +872,7 @@ export default function DietPlanView({
 
         <div className="card" style={{ padding: '1.25rem' }}>
           <h4 style={{ fontSize: '0.95rem', color: '#1b4332', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>💧</span> Dietitian General Instructions & Lifestyle Ahara
+            <DashboardIcon name="droplet" size={15} /> Dietitian General Instructions & Lifestyle Ahara
           </h4>
           <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.84rem', color: '#334155', lineHeight: '1.5' }}>
             {(activePlan.general_instructions || []).map((ins, idx) => (
@@ -863,10 +891,11 @@ export default function DietPlanView({
           <button
             type="button"
             className="btn-secondary"
-            style={{ fontSize: '0.78rem', padding: '0.25rem 0.55rem' }}
+            style={{ fontSize: '0.78rem', padding: '0.25rem 0.55rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             onClick={() => setShowEvidence(!showEvidence)}
           >
-            {showEvidence ? 'Hide Evidence Provenance' : '📚 View Evidence Provenance'}
+            <DashboardIcon name="book-open" size={13} />
+            <span>{showEvidence ? 'Hide Evidence Provenance' : 'View Evidence Provenance'}</span>
           </button>
         </div>
 
@@ -895,9 +924,13 @@ export default function DietPlanView({
                     padding: '0.35rem 0.65rem',
                     fontSize: '0.78rem',
                     color: '#1b4332',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
                   }}
                 >
-                  📄 <strong>{ev.document}</strong> {ev.page ? `(p. ${ev.page})` : ''}
+                  <DashboardIcon name="file-text" size={13} />
+                  <span><strong>{ev.document}</strong> {ev.page ? `(p. ${ev.page})` : ''}</span>
                 </div>
               ))}
             </div>
@@ -931,7 +964,9 @@ export default function DietPlanView({
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <div style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '0.75rem' }}>🔏</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem', color: 'var(--color-primary)' }}>
+              <DashboardIcon name="lock" size={36} />
+            </div>
             <h3 style={{ textAlign: 'center', color: '#1b4332', margin: '0 0 0.5rem' }}>
               Sign & Approve 7-Day Diet Plan
             </h3>

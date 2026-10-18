@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
+import DashboardIcon from './ui/DashboardIcons';
 
 export default function MealPlanView({
   mealPlan,
@@ -132,15 +133,15 @@ export default function MealPlanView({
   const formatMealTitle = (type) => {
     switch (type) {
       case 'breakfast':
-        return '🌅 Morning Breakfast (Pratarasha)';
+        return 'Morning Breakfast (Pratarasha)';
       case 'mid_morning':
-        return '☕ Mid-Morning Snack';
+        return 'Mid-Morning Snack';
       case 'lunch':
-        return '☀️ Mid-Day Lunch (Madhyahnika Ahara)';
+        return 'Mid-Day Lunch (Madhyahnika Ahara)';
       case 'evening_snack':
-        return '🍵 Evening Refreshment (Sayam Ahara)';
+        return 'Evening Refreshment (Sayam Ahara)';
       case 'dinner':
-        return '🌙 Evening Dinner (Ratri Ahara)';
+        return 'Evening Dinner (Ratri Ahara)';
       default:
         return type.replace('_', ' ').toUpperCase();
     }
@@ -197,9 +198,13 @@ export default function MealPlanView({
                   fontWeight: 600,
                   background: activePlan.requires_dietitian_review ? '#fef3c7' : '#dcfce7',
                   color: activePlan.requires_dietitian_review ? '#92400e' : '#166534',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
                 }}
               >
-                {activePlan.requires_dietitian_review ? '⚠️ Needs Dietitian Review' : '✓ Clinically Validated'}
+                <DashboardIcon name={activePlan.requires_dietitian_review ? 'shield-alert' : 'check'} size={12} />
+                <span>{activePlan.requires_dietitian_review ? 'Needs Dietitian Review' : 'Clinically Validated'}</span>
               </span>
             )}
           </div>
@@ -214,9 +219,10 @@ export default function MealPlanView({
             className="btn-primary"
             onClick={onGeneratePlan}
             disabled={loading}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
           >
-            {loading ? 'Generating Plan...' : '⚡ Generate Meal Plan'}
+            <DashboardIcon name="sparkles" size={15} />
+            <span>{loading ? 'Generating Plan...' : 'Generate Meal Plan'}</span>
           </button>
 
           {activePlan && onSavePlan && (
@@ -225,9 +231,10 @@ export default function MealPlanView({
               className="btn-secondary"
               onClick={() => onSavePlan({ ...activePlan, dietitian_notes: dietitianNotes })}
               disabled={savingPlan}
-              style={{ borderColor: '#2d6a4f', color: '#1b4332', fontWeight: 600 }}
+              style={{ borderColor: '#2d6a4f', color: '#1b4332', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             >
-              {savingPlan ? 'Saving...' : '💾 Save Meal Plan'}
+              <DashboardIcon name="check" size={14} />
+              <span>{savingPlan ? 'Saving...' : 'Save Meal Plan'}</span>
             </button>
           )}
         </div>
@@ -258,20 +265,25 @@ export default function MealPlanView({
             border: '2px dashed #cbd5e1',
           }}
         >
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🥗</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem', color: 'var(--color-primary)' }}>
+            <DashboardIcon name="utensils" size={42} />
+          </div>
           <h4 style={{ margin: 0, color: '#334155' }}>No Meal Plan Generated Yet</h4>
           <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '500px', margin: '0.5rem auto 1.5rem' }}>
             Click "Generate Meal Plan" to construct an Ayurvedic-aligned, macro-balanced daily meal plan grounded in Phase 3 targets and knowledge base evidence.
           </p>
-          <button type="button" className="btn-primary" onClick={onGeneratePlan}>
-            ⚡ Generate Meal Plan Now
+          <button type="button" className="btn-primary" onClick={onGeneratePlan} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <DashboardIcon name="sparkles" size={16} />
+            <span>Generate Meal Plan Now</span>
           </button>
         </div>
       )}
 
       {loading && (
         <div style={{ padding: '3rem', textAlign: 'center', color: '#2d6a4f' }}>
-          <div style={{ fontSize: '2rem', animation: 'spin 1s infinite' }}>⏳</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', color: 'var(--color-primary)', animation: 'spin 1.5s linear infinite' }}>
+            <DashboardIcon name="refresh-cw" size={32} />
+          </div>
           <p style={{ marginTop: '0.5rem', fontWeight: 600 }}>
             Evaluating eligible foods, balancing macronutrients & optimizing portions...
           </p>
@@ -292,7 +304,8 @@ export default function MealPlanView({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                <span>⚠️ Clinical & Ayurvedic Verification Required</span>
+                <DashboardIcon name="shield-alert" size={16} />
+                <span>Clinical & Ayurvedic Verification Required</span>
               </div>
               <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', fontSize: '0.88rem' }}>
                 {(activePlan.review_reasons || []).map((reason, idx) => (
@@ -340,9 +353,13 @@ export default function MealPlanView({
                   borderRadius: '12px',
                   background: activePlan.target_comparison?.within_target ? '#dcfce7' : '#fef3c7',
                   color: activePlan.target_comparison?.within_target ? '#166534' : '#92400e',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
                 }}
               >
-                {activePlan.target_comparison?.within_target ? '✓ Targets Achieved' : '⚠️ Minor Variance'}
+                <DashboardIcon name={activePlan.target_comparison?.within_target ? 'check' : 'shield-alert'} size={13} />
+                <span>{activePlan.target_comparison?.within_target ? 'Targets Achieved' : 'Minor Variance'}</span>
               </span>
             </div>
 
@@ -548,7 +565,8 @@ export default function MealPlanView({
                                   }}
                                   title="Find eligible substitutes for this food"
                                 >
-                                  ⇄ Substitute
+                                  <DashboardIcon name="refresh-cw" size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                                  <span>Substitute</span>
                                 </button>
                               </td>
                             </tr>
@@ -777,9 +795,10 @@ export default function MealPlanView({
                             type="button"
                             className="btn-primary"
                             onClick={() => handleApplySubstitution(sub)}
-                            style={{ padding: '0.35rem 0.8rem', fontSize: '0.82rem' }}
+                            style={{ padding: '0.35rem 0.8rem', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                           >
-                            ✓ Apply Substitute
+                            <DashboardIcon name="check" size={12} />
+                            <span>Apply Substitute</span>
                           </button>
                         </div>
 

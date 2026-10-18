@@ -76,6 +76,10 @@ services:
       PORT: 5000
       DATABASE_URL: postgresql://${DB_USER:-ayurdiet_user}:${DB_PASSWORD:-ayurdiet_password}@postgres:5432/${DB_NAME:-ayurdiet_db}
       AI_SERVICE_URL: http://ai-service:8000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,6 +104,9 @@ services:
     environment:
       BACKEND_URL: http://backend:5000
       VITE_API_URL: http://localhost:5000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       backend:
         condition: service_healthy
@@ -113,3 +120,4 @@ services:
 volumes:
   postgres_data:
   qdrant_data:
+  uploads_data:

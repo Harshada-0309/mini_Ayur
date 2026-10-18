@@ -1,4 +1,5 @@
 import React from 'react';
+import DashboardIcon from './ui/DashboardIcons';
 
 export default function PatientSidebar({
   patients,
@@ -16,7 +17,7 @@ export default function PatientSidebar({
         <div className="sidebar-title-row">
           <h2 className="sidebar-heading">Patients ({patients.length})</h2>
           <button className="btn-new-patient" onClick={onOpenNewPatientModal}>
-            <span>+</span> New Patient
+            <DashboardIcon name="plus" size={14} /> New Patient
           </button>
         </div>
 
@@ -101,7 +102,7 @@ export default function PatientSidebar({
             style={{ width: '100%', fontSize: '0.84rem', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.45rem', padding: '0.5rem 0.75rem' }}
             onClick={onOpenKnowledgeBase}
           >
-            <span>📚</span> Open Knowledge Base
+            <DashboardIcon name="book-open" size={15} /> Open Knowledge Base
           </button>
         </div>
       )}
