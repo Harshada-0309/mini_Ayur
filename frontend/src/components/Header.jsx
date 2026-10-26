@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Header({ activePatient, currentWorkspace = 'clinical', onWorkspaceChange }) {
+export default function Header({ activePatient, currentWorkspace = 'clinical', onWorkspaceChange, onLogout }) {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'short',
     year: 'numeric',
@@ -49,6 +49,16 @@ export default function Header({ activePatient, currentWorkspace = 'clinical', o
           <span className="dietitian-dot" />
           <span>Dietitian Workspace</span>
         </div>
+        {onLogout && (
+          <button
+            type="button"
+            className="header-logout-btn"
+            onClick={onLogout}
+            title="Sign out of Dietitian Workspace"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </header>
   );

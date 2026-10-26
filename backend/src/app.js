@@ -18,6 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 // Health Check Routes
 app.use('/', healthRoutes);
 
+// Dietitian Authentication APIs
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 // Phase 2: Dietitian Patient Assessment REST APIs
 app.use('/api/patients', patientRoutes);
 app.use('/api/assessments', assessmentRoutes);

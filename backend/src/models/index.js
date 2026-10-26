@@ -53,10 +53,12 @@ const EntitySchemas = {
 const patientRepository = require('../repositories/patientRepository');
 const assessmentRepository = require('../repositories/assessmentRepository');
 const labDataRepository = require('../repositories/labDataRepository');
+const dietitianRepository = require('../repositories/dietitianRepository');
 
 module.exports = {
   EntitySchemas,
   patientRepository,
   assessmentRepository,
   labDataRepository,
+  dietitianRepository,
 };

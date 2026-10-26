@@ -2,6 +2,22 @@
 -- AyurDiet Database Schema - Phase 2: Dietitian Patient Assessment
 -- ====================================================================
 
+-- 0. Dietitians Table
+CREATE TABLE IF NOT EXISTS dietitians (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  username VARCHAR(60) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  salt VARCHAR(64) NOT NULL,
+  role VARCHAR(30) DEFAULT 'dietitian',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_dietitians_email ON dietitians(email);
+CREATE INDEX IF NOT EXISTS idx_dietitians_username ON dietitians(username);
+
 -- 1. Patients Table
 CREATE TABLE IF NOT EXISTS patients (
   id SERIAL PRIMARY KEY,
@@ -12,6 +28,7 @@ CREATE TABLE IF NOT EXISTS patients (
   occupation VARCHAR(150),
   phone VARCHAR(50),
   email VARCHAR(150),
+  dietitian_id VARCHAR(50) DEFAULT 'dietitian-primary',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

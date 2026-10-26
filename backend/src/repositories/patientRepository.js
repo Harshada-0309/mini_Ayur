@@ -30,7 +30,7 @@ const patientRepository = {
   /**
    * List / search patients
    */
-  async findAll({ search, limit = 50, offset = 0 } = {}) {
+  async findAll({ search, dietitianId, limit = 50, offset = 0 } = {}) {
     const connected = await isDbConnected();
 
     if (connected) {
@@ -52,10 +52,25 @@ const patientRepository = {
         FROM patients p
       `;
       const params = [];
+      const whereClauses = [];
+
+      if (dietitianId) {
+        if (dietitianId === 'dietitian-primary') {
+          whereClauses.push(`(p.dietitian_id = $${params.length + 1} OR p.dietitian_id IS NULL)`);
+          params.push('dietitian-primary');
+        } else {
+          whereClauses.push(`p.dietitian_id = $${params.length + 1}`);
+          params.push(dietitianId);
+        }
+      }
 
       if (search) {
-        query += ` WHERE p.name ILIKE $1 OR p.patient_code ILIKE $1 OR p.phone ILIKE $1`;
+        whereClauses.push(`(p.name ILIKE $${params.length + 1} OR p.patient_code ILIKE $${params.length + 1} OR p.phone ILIKE $${params.length + 1})`);
         params.push(`%${search}%`);
+      }
+
+      if (whereClauses.length > 0) {
+        query += ` WHERE ` + whereClauses.join(' AND ');
       }
 
       query += ` ORDER BY p.id DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
@@ -67,6 +82,14 @@ const patientRepository = {
 
     // In-memory fallback
     let list = [...memoryPatients];
+    if (dietitianId) {
+      list = list.filter((p) => {
+        if (dietitianId === 'dietitian-primary') {
+          return !p.dietitian_id || p.dietitian_id === 'dietitian-primary';
+        }
+        return p.dietitian_id === dietitianId;
+      });
+    }
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -130,6 +153,7 @@ const patientRepository = {
    */
   async create(data) {
     const connected = await isDbConnected();
+    const dietitianId = data.dietitian_id || 'dietitian-primary';
 
     if (connected) {
       const pool = getPool();
@@ -139,19 +163,19 @@ const patientRepository = {
         const nextId = countRes.rows[0].next_id;
         code = generatePatientCode(nextId);
         const insertRes = await pool.query(
-          `INSERT INTO patients (id, patient_code, name, age, sex, occupation, phone, email)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          `INSERT INTO patients (id, patient_code, name, age, sex, occupation, phone, email, dietitian_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
            RETURNING *`,
-          [nextId, code, data.name, data.age, data.sex, data.occupation || null, data.phone || null, data.email || null]
+          [nextId, code, data.name, data.age, data.sex, data.occupation || null, data.phone || null, data.email || null, dietitianId]
         );
         return insertRes.rows[0];
       }
 
       const res = await pool.query(
-        `INSERT INTO patients (patient_code, name, age, sex, occupation, phone, email)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO patients (patient_code, name, age, sex, occupation, phone, email, dietitian_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
-        [code, data.name, data.age, data.sex, data.occupation || null, data.phone || null, data.email || null]
+        [code, data.name, data.age, data.sex, data.occupation || null, data.phone || null, data.email || null, dietitianId]
       );
       return res.rows[0];
     }
@@ -169,6 +193,7 @@ const patientRepository = {
       occupation: data.occupation || '',
       phone: data.phone || '',
       email: data.email || '',
+      dietitian_id: dietitianId,
       created_at: now,
       updated_at: now,
       assessment_count: 0,
